@@ -47,7 +47,4 @@ android.accept_sdk_license = True
 
 [buildozer]
 # (int) Log level (0 = error only, 1 = info, 2 = debug)
-log_level = 1
-
-# (int) Maximum number of concurrent log lines
-log_max_lines = 10000
+log_level = 2
