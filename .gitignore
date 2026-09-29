@@ -22,3 +22,6 @@ report/
 .claude/
 .idea/
 .vscode/
+
+# Архивы логов CI
+logs_*.zip

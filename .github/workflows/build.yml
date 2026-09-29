@@ -7,31 +7,71 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Фиксируем версию: ubuntu-latest переезжает на Ubuntu 26 в октябре 2026
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
 
     steps:
       - name: Получить исходники
         uses: actions/checkout@v4
 
-      # Готовый образ с Android SDK/NDK и buildozer —
-      # не нужно скачивать и настраивать SDK в каждом запуске
-      - name: Собрать APK (debug)
-        id: buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+      - name: Установить Python 3.11
+        uses: actions/setup-python@v5
         with:
-          command: buildozer android debug
-          buildozer_version: stable
+          python-version: '3.11'
 
-      - name: Показать, что собралось
+      - name: Системные зависимости (JDK, сборка)
         run: |
-          echo "Файлы сборки:"
-          ls -la bin/ || true
-          echo "Результат: ${{ steps.buildozer.outputs.filename }}"
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            autoconf libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev cmake \
+            libffi-dev libssl-dev automake autopoint gettext
+
+      - name: Кэш Android SDK/NDK и gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            ~/.gradle
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: Установить Buildozer
+        run: |
+          python -m pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: Принять лицензии Android SDK
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+
+      - name: Собрать APK (debug)
+        run: buildozer android debug 2>&1 | tee buildozer-full.log
+
+      - name: Итог сборки
+        if: always()
+        run: |
+          echo "=== Содержимое bin/ ==="
+          ls -la bin/ 2>/dev/null || echo "bin/ пуст — сборка не дошла до упаковки"
+          echo "=== Последние 60 строк лога ==="
+          tail -60 buildozer-full.log 2>/dev/null || true
 
       - name: Загрузить APK как артефакт
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: beeragg-apk
           path: bin/*.apk
           if-no-files-found: error
+
+      - name: Загрузить лог сборки (при ошибке)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-log
+          path: buildozer-full.log
+          if-no-files-found: warn
