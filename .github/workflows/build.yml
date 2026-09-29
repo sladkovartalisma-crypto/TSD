@@ -25,9 +25,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip openjdk-17-jdk \
-            autoconf libtool pkg-config zlib1g-dev \
+            autoconf automake libtool libtool-bin libltdl-dev \
+            pkg-config zlib1g-dev \
             libncurses5-dev libncursesw5-dev cmake \
-            libffi-dev libssl-dev automake autopoint gettext
+            libffi-dev libssl-dev autopoint gettext
 
       - name: Кэш Android SDK/NDK и gradle
         uses: actions/cache@v4
