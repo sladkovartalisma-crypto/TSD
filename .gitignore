@@ -1,0 +1,24 @@
+# Сборка
+bin/
+.buildozer/
+*.apk
+*.aab
+*.pyc
+__pycache__/
+
+# Окружение
+venv/
+.venv/
+
+# Локальные данные и логи
+output/
+report/
+*.log
+
+# Резервные копии
+*копия*
+
+# Редакторы / инструменты
+.claude/
+.idea/
+.vscode/
