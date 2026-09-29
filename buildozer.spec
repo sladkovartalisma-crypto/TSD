@@ -39,9 +39,11 @@ android.api = 31
 android.minapi = 24
 android.archs = arm64-v8a
 
-# ---------- Signing (для автоматической подписи, ключ сгенерируется сборкой) ----------
+# ---------- Сборка ----------
 android.ndk_api = 24
-android.debug_artifact = yes
+
+# Автоматически принимать лицензии Android SDK (нужно для сборки без человека)
+android.accept_sdk_license = True
 
 [buildozer]
 # (int) Log level (0 = error only, 1 = info, 2 = debug)
