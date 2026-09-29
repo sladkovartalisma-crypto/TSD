@@ -35,9 +35,12 @@ jobs:
       - name: Кэш Android SDK/NDK и gradle
         uses: actions/cache@v4
         with:
+          # ~/.android — здесь gradle создаёт debug.keystore. Без него каждый
+          # прогон генерирует новую подпись, и APK не встаёт поверх прежней версии.
           path: |
             ~/.buildozer
             ~/.gradle
+            ~/.android
           # Префикс p4a2024- намеренно новый: в старых кэшах (buildozer-...)
           # лежит p4a master под Python 3.14, его неполный dist и собранные
           # recipe-пакеты — с p4a v2024.01.21 (Python 3.11) они несовместимы.
